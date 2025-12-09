@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "MatControl - Pagamentos",
+    "_postman_id": "c3f2c2e2-6f5b-4c2a-a9a1-8e2f9b4d1a10",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "academiaId", "value": "" },
+    { "key": "alunoId", "value": "" },
+    { "key": "planoId", "value": "" },
+    { "key": "stripeAccountId", "value": "" },
+    { "key": "platformPriceId", "value": "" },
+    { "key": "valor", "value": "100" },
+    { "key": "couponCode", "value": "" },
+    { "key": "mesReferencia", "value": "2025-11" }
+  ],
+  "item": [
+    {
+      "name": "Gestor: Stripe Subscribe",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/billing/subscribe", "host": ["{{baseUrl}}"], "path": ["api","billing","subscribe"] },
+        "body": { "mode": "raw", "raw": "{}" }
+      }
+    },
+    {
+      "name": "Stripe: Webhook (dev)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/billing/webhook", "host": ["{{baseUrl}}"], "path": ["api","billing","webhook"] },
+        "body": { "mode": "raw", "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": { \"object\": { \"subscription\": \"sub_123\", \"metadata\": { \"academiaId\": \"{{academiaId}}\" } } }\n}" }
+      }
+    },
+    {
+      "name": "Gestor: Checkout assinatura plataforma",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/gestor/checkout", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","gestor","checkout"] },
+        "body": { "mode": "raw", "raw": "{\n  \"priceId\": \"{{platformPriceId}}\",\n  \"mode\": \"subscription\"\n}" }
+      }
+    },
+    {
+      "name": "Aluno: Checkout plano da academia",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/aluno/checkout", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","aluno","checkout"] },
+        "body": { "mode": "raw", "raw": "{\n  \"planoId\": \"{{planoId}}\"\n}" }
+      }
+    },
+    {
+      "name": "Aluno: Assinatura com cupom/trial",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/aluno/assinatura", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","aluno","assinatura"] },
+        "body": { "mode": "raw", "raw": "{\n  \"planoId\": \"{{planoId}}\",\n  \"couponCode\": \"{{couponCode}}\"\n}" }
+      }
+    },
+    {
+      "name": "Academia: Configurar Stripe Account ID",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/academias/{{academiaId}}/stripe", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","academias","{{academiaId}}","stripe"] },
+        "body": { "mode": "raw", "raw": "{\n  \"stripeAccountId\": \"{{stripeAccountId}}\"\n}" }
+      }
+    },
+    {
+      "name": "Academia: Conectar Stripe (Express) e gerar onboarding",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/academias/{{academiaId}}/stripe/connect", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","academias","{{academiaId}}","stripe","connect"] }
+      }
+    },
+    {
+      "name": "Pagamento direto para academia (PaymentIntent)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/criar", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","criar"] },
+        "body": { "mode": "raw", "raw": "{\n  \"valor\": {{valor}},\n  \"academiaId\": \"{{academiaId}}\",\n  \"descricao\": \"Mensalidade\"\n}" }
+      }
+    },
+    {
+      "name": "Listar pagamentos por academia",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/academias/{{academiaId}}", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","academias","{{academiaId}}"] }
+      }
+    },
+    {
+      "name": "Listar pagamentos por aluno",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/alunos/{{alunoId}}", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","alunos","{{alunoId}}"] }
+      }
+    },
+    {
+      "name": "Isentar mensalidade do aluno (isento=0)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/pagamentos/academias/{{academiaId}}/isentar", "host": ["{{baseUrl}}"], "path": ["api","pagamentos","academias","{{academiaId}}","isentar"] },
+        "body": { "mode": "raw", "raw": "{\n  \"alunoId\": \"{{alunoId}}\",\n  \"motivo\": \"Isenção mensal\",\n  \"mesReferencia\": \"{{mesReferencia}}\"\n}" }
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "MatControl - Fluxo Gestor (Robusto)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "nomeGestor", "value": "Gestor MatControl" },
+    { "key": "emailGestor", "value": "gestor@example.com" },
+    { "key": "senhaGestor", "value": "senha123" },
+    { "key": "academiaId", "value": "" },
+    { "key": "codigoAcademia", "value": "" },
+    { "key": "modalidadeId", "value": "" },
+    { "key": "faixaId", "value": "" },
+    { "key": "professorId", "value": "" },
+    { "key": "turmaId", "value": "" },
+    { "key": "aulaId", "value": "" },
+    { "key": "timezone", "value": "America/Sao_Paulo" }
+  ],
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        { "name": "Registrar Gestor", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/registrar-gestor" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"{{nomeGestor}}\",\n  \"email\": \"{{emailGestor}}\",\n  \"senha\": \"{{senhaGestor}}\"\n}" } } },
+        { "name": "Login (Gestor)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/login" }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{emailGestor}}\",\n  \"senha\": \"{{senhaGestor}}\"\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const json = pm.response.json(); if (json && json.token) pm.collectionVariables.set('token', json.token); } catch(e) {}" ] } } ] },
+        { "name": "Usuário Atual", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/auth/me" } } }
+      ]
+    },
+    {
+      "name": "Academias",
+      "item": [
+        {
+          "name": "Registrar Academia",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/academias/registrar" },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Academia MatControl\",\n  \"endereco\": {\n    \"addressLine1\": \"Rua Exemplo, 123\",\n    \"city\": \"São Paulo\",\n    \"region\": \"SP\",\n    \"postalCode\": \"01000-000\",\n    \"country\": \"BR\"\n  },\n  \"telefone\": \"+55 11 99999-0000\",\n  \"email\": \"contato@matcontrol.com\"\n}" }
+          },
+          "event": [ { "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "try { const acad = pm.response.json(); if (acad && acad._id) pm.collectionVariables.set('academiaId', acad._id); if (acad && acad.codigoAcademia) pm.collectionVariables.set('codigoAcademia', acad.codigoAcademia); } catch(e) {}"
+          ] } } ]
+        },
+        { "name": "Buscar por Código", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/academias/codigo/{{codigoAcademia}}" } } },
+        { "name": "Listar Academias", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/academias" } } }
+      ]
+    },
+    {
+      "name": "Modalidades e Níveis",
+      "item": [
+        { "name": "Modalidades Base", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/modalidades/base" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const mods = pm.response.json(); if (Array.isArray(mods) && mods.length > 0) pm.collectionVariables.set('modalidadeId', String(mods[0]._id)); } catch(e) {}" ] } } ] },
+        { "name": "Ativar na Academia", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/modalidades/ativar" }, "body": { "mode": "raw", "raw": "{\n  \"academiaId\": \"{{academiaId}}\",\n  \"modalidades\": [\"{{modalidadeId}}\"]\n}" } } },
+        { "name": "Listar Modalidades da Minha Academia", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/modalidades/minhas" } } },
+        { "name": "Listar Níveis por Modalidade", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/niveis/{{modalidadeId}}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const niveis = pm.response.json(); if (Array.isArray(niveis) && niveis.length > 0) pm.collectionVariables.set('faixaId', String(niveis[0]._id)); } catch(e) {}" ] } } ] }
+      ]
+    },
+    {
+      "name": "Registrar Professor/Aluno (Auth)",
+      "item": [
+        { "name": "Registrar Professor (via código)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/registrar-professor" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Prof. Exemplo\",\n  \"email\": \"professor@example.com\",\n  \"senha\": \"senha123\",\n  \"codigoAcademia\": \"{{codigoAcademia}}\"\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const json = pm.response.json(); const usuario = json.usuario || {}; if (usuario.id) pm.collectionVariables.set('professorId', String(usuario.id)); } catch(e) {}" ] } } ] },
+        { "name": "Registrar Aluno (via código)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/registrar-aluno" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Aluno Exemplo\",\n  \"email\": \"aluno@example.com\",\n  \"senha\": \"senha123\",\n  \"codigoAcademia\": \"{{codigoAcademia}}\"\n}" } } }
+      ]
+    },
+    {
+      "name": "Planos",
+      "item": [
+        { "name": "Criar Plano", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/planos" }, "body": { "mode": "raw", "raw": "{\n  \"academiaId\": \"{{academiaId}}\",\n  \"nome\": \"Plano Ouro\",\n  \"descricao\": \"Acesso ilimitado\",\n  \"valor\": 199.0,\n  \"modalidadesDisponiveis\": [\"{{modalidadeId}}\"]\n}" } } },
+        { "name": "Listar Planos por Academia", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/planos/academia/{{academiaId}}" } } }
+      ]
+    },
+    {
+      "name": "Turmas",
+      "item": [
+        { "name": "Criar Turma", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/turmas" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Turma Kids\",\n  \"modalidade\": \"{{modalidadeId}}\",\n  \"professor\": \"{{professorId}}\",\n  \"diasDaSemana\": [\"segunda\", \"quarta\"],\n  \"horario\": \"18:30\",\n  \"academiaId\": \"{{academiaId}}\"\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const json = pm.response.json(); if (json && json._id) pm.collectionVariables.set('turmaId', json._id); if (json && json.codigoConvite) pm.collectionVariables.set('codigoConvite', json.codigoConvite); } catch(e) {}" ] } } ] }
+      ]
+    },
+    {
+      "name": "Aulas",
+      "item": [
+        { "name": "Gerar Semana por Turma", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/turmas/{{turmaId}}/gerar-semana?timezone={{timezone}}" } } },
+        { "name": "Listar Semana por Turma", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/turmas/{{turmaId}}/semana" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const json = pm.response.json(); const first = Array.isArray(json) ? json[0] : (json.aulas && json.aulas[0]); if (first && first._id) pm.collectionVariables.set('aulaId', first._id); } catch(e) {}" ] } } ] },
+        { "name": "Minhas Aulas da Semana (professor/aluno)", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/minhas/semana" } } },
+        { "name": "Editar/Cancelar Aula", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/{{aulaId}}" }, "body": { "mode": "raw", "raw": "{\n  \"status\": \"cancelada\",\n  \"observacoes\": \"Feriado\"\n}" } } },
+        { "name": "Gerar Semana por Academia", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/academias/{{academiaId}}/gerar-semana" } } }
+      ]
+    },
+  {
+      "name": "Perfis",
+      "item": [
+        { "name": "Listar Perfis do Usuário", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/user" } } },
+        { "name": "Criar Professor (Gestor)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/gestor/professor" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200/201', function(){ pm.expect([200,201]).to.include(pm.response.code); });", "try { const json = pm.response.json(); const perfil = json.perfil || {}; if (perfil._id) pm.collectionVariables.set('professorId', String(perfil._id)); } catch(e) {}" ] } } ] }
+      ]
+    }
+  ]
+}

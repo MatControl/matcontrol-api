@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "MatControl - Fluxo Responsável (Robusto)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "emailResponsavel", "value": "responsavel@example.com" },
+    { "key": "senhaResponsavel", "value": "senha123" },
+    { "key": "codigoAcademia", "value": "" },
+    { "key": "academiaId", "value": "" },
+    { "key": "dependenteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Autenticação",
+      "item": [
+        { "name": "Registrar Responsável", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/registrar-responsavel" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Responsável Exemplo\",\n  \"email\": \"{{emailResponsavel}}\",\n  \"senha\": \"{{senhaResponsavel}}\",\n  \"codigoAcademia\": \"{{codigoAcademia}}\"\n}" } } },
+        { "name": "Login", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" } ], "url": { "raw": "{{baseUrl}}/api/auth/login" }, "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{emailResponsavel}}\",\n  \"senha\": \"{{senhaResponsavel}}\"\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const json = pm.response.json(); if (json && json.token) pm.collectionVariables.set('token', json.token); } catch(e) {}" ] } } ] },
+        { "name": "Usuário Atual", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/auth/me" } } }
+      ]
+    },
+    {
+      "name": "Academia",
+      "item": [
+        { "name": "Buscar Academia por Código", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/academias/codigo/{{codigoAcademia}}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "try { const acad = pm.response.json(); if (acad && acad._id) pm.collectionVariables.set('academiaId', acad._id); } catch(e) {}" ] } } ] }
+      ]
+    },
+    {
+      "name": "Dependentes",
+      "item": [
+        { "name": "Criar Dependente", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/dependentes" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"João Filho\",\n  \"nascimento\": \"2015-05-20\",\n  \"academiaId\": \"{{academiaId}}\"\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const dep = pm.response.json(); if (dep && dep._id) pm.collectionVariables.set('dependenteId', dep._id); } catch(e) {}" ] } } ] }
+      ]
+    }
+  ]
+}

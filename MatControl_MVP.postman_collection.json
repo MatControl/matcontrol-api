@@ -1,0 +1,695 @@
+{
+  "info": {
+    "name": "MatControl MVP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "academiaId", "value": "" },
+    { "key": "codigoAcademia", "value": "" },
+    { "key": "modalidadeId", "value": "" },
+    { "key": "nivelId", "value": "" },
+    { "key": "planoId", "value": "" },
+    { "key": "profileId", "value": "" },
+    { "key": "dependenteId", "value": "" },
+    { "key": "professorId", "value": "" },
+    { "key": "turmaId", "value": "" },
+    { "key": "codigoConvite", "value": "" },
+    { "key": "aulaId", "value": "" },
+    { "key": "timezone", "value": "America/Sao_Paulo" },
+    { "key": "professorEmail", "value": "professor@ex.com" },
+    { "key": "alunoEmail", "value": "aluno@ex.com" },
+    { "key": "tokenProfessor", "value": "" },
+    { "key": "tokenAluno", "value": "" },
+    { "key": "alunoId", "value": "" },
+    { "key": "dependenteAlunoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registrar Gestor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/registrar-gestor" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Gestor\",\n  \"email\": \"gestor@ex.com\",\n  \"senha\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "try { const json = pm.response.json(); if (json.user && json.user._id) pm.collectionVariables.set('userId', json.user._id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Gestor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"gestor@ex.com\",\n  \"senha\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "try { const json = pm.response.json(); if (json.token) pm.collectionVariables.set('token', json.token); if (json.user && json.user._id) pm.collectionVariables.set('userId', json.user._id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/me" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "exec": ["pm.test('Status 200', () => pm.response.to.have.status(200));"] }
+            }
+          ]
+        },
+        {
+          "name": "Registrar Professor",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/registrar-professor" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Professor\",\n  \"email\": \"{{professorEmail}}\",\n  \"senha\": \"123456\",\n  \"codigoAcademia\": \"{{codigoAcademia}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "try { const json = pm.response.json(); const usuario = json.usuario || json.user; if (usuario) { const id = usuario.id || usuario._id; if (id) pm.collectionVariables.set('professorId', id); } } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Professor)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{professorEmail}}\",\n  \"senha\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "try { const json = pm.response.json(); if (json.token) pm.collectionVariables.set('tokenProfessor', json.token); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar Aluno",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/registrar-aluno" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Aluno\",\n  \"email\": \"{{alunoEmail}}\",\n  \"senha\": \"123456\",\n  \"codigoAcademia\": \"{{codigoAcademia}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "try { const json = pm.response.json(); const usuario = json.usuario || json.user; if (usuario) { const id = usuario.id || usuario._id; if (id) pm.collectionVariables.set('alunoId', id); } } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (Aluno)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{alunoEmail}}\",\n  \"senha\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "try { const json = pm.response.json(); if (json.token) pm.collectionVariables.set('tokenAluno', json.token); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Academias",
+      "item": [
+        {
+          "name": "Registrar Academia",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/academias/registrar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Academia MatControl\",\n  \"endereco\": {\n    \"addressLine1\": \"Rua Exemplo, 123\",\n    \"addressLine2\": \"Centro\",\n    \"city\": \"São Paulo\",\n    \"region\": \"SP\",\n    \"postalCode\": \"01000-000\",\n    \"country\": \"BR\"\n  },\n  \"telefone\": \"+55 11 99999-0000\",\n  \"email\": \"contato@matcontrol.com\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "try { const json = pm.response.json(); const a = json.academia || json; if (a && a._id) pm.collectionVariables.set('academiaId', a._id); if (a && a.codigoAcademia) pm.collectionVariables.set('codigoAcademia', a.codigoAcademia); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar por Código",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/academias/codigo/{{codigoAcademia}}" }
+          }
+        },
+        {
+          "name": "Listar Academias",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/academias" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modalidades",
+      "item": [
+        {
+          "name": "Base de Modalidades",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/modalidades/base" }
+          }
+        },
+        {
+          "name": "Ativar Modalidades na Academia",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/modalidades/ativar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"academiaId\": \"{{academiaId}}\",\n  \"modalidades\": [\"{{modalidadeId}}\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Níveis",
+      "item": [
+        {
+          "name": "Listar Níveis por Modalidade",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/niveis/{{modalidadeId}}" }
+          }
+        },
+        {
+          "name": "Atualizar Nível",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/niveis/{{nivelId}}" },
+            "body": { "mode": "raw", "raw": "{\n  \"tempoPadraoAulas\": 120\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "let nivel = null; try { const json = pm.response.json(); nivel = json.nivel || json; } catch(e) {}",
+              "pm.test('tempoPadraoAulas atualizado', () => { const esperado = 120; if (nivel && typeof nivel.tempoPadraoAulas === 'number') { pm.expect(nivel.tempoPadraoAulas).to.eql(esperado); } });"
+            ] } }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Planos",
+      "item": [
+        {
+          "name": "Criar Plano",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/planos" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"academiaId\": \"{{academiaId}}\",\n  \"nome\": \"Plano Ouro\",\n  \"permiteMultimodalidade\": true,\n  \"valor\": 199\n}"
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const json = pm.response.json(); if (json && json._id) pm.collectionVariables.set('planoId', json._id); } catch(e) {}"] } }
+          ]
+        },
+        { "name": "Listar Planos por Academia", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/planos/academia/{{academiaId}}" } } },
+        { "name": "Atualizar Plano", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/planos/{{planoId}}" }, "body": { "mode": "raw", "raw": "{\n  \"valor\": 149\n}" } } },
+        { "name": "Deletar Plano", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/planos/{{planoId}}" } } }
+      ]
+    },
+    {
+      "name": "Perfis",
+      "item": [
+        {
+          "name": "Inicializar Perfil Principal",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/inicializar-principal" },
+            "body": { "mode": "raw", "raw": "{\n  \"telefone\": \"+55 11 90000-0000\",\n  \"nascimento\": \"2000-01-01\",\n  \"academiaId\": \"{{academiaId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Inicializar Perfil Principal — Já Treina",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/inicializar-principal" },
+            "body": {
+              "mode": "raw",
+        "raw": "{\n  \"telefone\": \"+55 11 90000-0000\",\n  \"nascimento\": \"2000-01-01\",\n  \"academiaId\": \"{{academiaId}}\",\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"faixaId\": \"{{faixaId}}\",\n  \"grau\": \"{{grau}}\",\n  \"aulasDesdeUltimoGrau\": \"{{aulasDesdeUltimoGrau}}\",\n  \"jaTreina\": true,\n  \"dataInicioTreino\": \"2022-05-01\",\n  \"dataInicioFaixa\": \"2022-05-01\",\n  \"dataUltimoGrau\": \"2024-02-15\",\n  \"sexo\": \"masculino\",\n  \"peso\": \"68\",\n  \"pretaDataReferencia\": \"{{pretaDataReferencia}}\"\n}"
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "// Preencha manualmente todas as variáveis do body; sem autopreenchimento.",
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "if (!authHeader) { console.warn('Token ausente: defina Authorization: Bearer {{token}}'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}",
+              "pm.test('perfil presente', () => { pm.expect(perfil).to.be.ok; });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Inicializar Perfil Principal — Vai Começar",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/inicializar-principal" },
+            "body": {
+              "mode": "raw",
+        "raw": "{\n  \"telefone\": \"+55 11 90000-0000\",\n  \"nascimento\": \"2000-01-01\",\n  \"academiaId\": \"{{academiaId}}\",\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"jaTreina\": false,\n  \"dataInicioFaixa\": \"{{dataInicioFaixa}}\",\n  \"sexo\": \"masculino\",\n  \"peso\": \"68\"\n}"
+            }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "if (!authHeader) { console.warn('Token ausente: defina Authorization: Bearer {{token}}'); }",
+              "// Necessário: modalidadeId para selecionar o primeiro nível."
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}",
+              "pm.test('perfil presente', () => { pm.expect(perfil).to.be.ok; });",
+              "pm.test('faixaId definido (primeiro nível)', () => { pm.expect(perfil && perfil.faixaId).to.be.ok; });",
+              "pm.test('graus = 0', () => { pm.expect(Number(perfil && perfil.graus)).to.eql(0); });",
+              "pm.test('aulasNoNivelAtual = 0', () => { pm.expect(Number(perfil && perfil.aulasNoNivelAtual)).to.eql(0); });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Criar Perfil Vinculado",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/criar" },
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"dependente\",\n  \"nome\": \"Filho\"\n}" }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const json = pm.response.json(); if (json && json._id) pm.collectionVariables.set('profileId', json._id); } catch(e) {}"] } }
+          ]
+        },
+        {
+          "name": "Criar Perfil Professor (Gestor)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/criar" },
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"professor\",\n  \"telefone\": \"{{criadorTelefone}}\",\n  \"nascimento\": \"{{perfilNascimento}}\",\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"faixaId\": \"{{faixaId}}\",\n  \"pretaDataReferencia\": \"{{pretaDataReferencia}}\",\n  \"aulasNoNivelAtual\": 0\n}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "// Sem auto-definições: preencha manualmente modalidadeId, faixaId, telefone, nascimento, etc.",
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "if (!authHeader) { console.warn('Token ausente: defina Authorization: Bearer {{token}}'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}",
+              "pm.test('Tipo = professor', () => { pm.expect(perfil && perfil.tipo).to.eql('professor'); });",
+              "pm.test('academiaId presente', () => { pm.expect(perfil && perfil.academiaId).to.be.ok; });",
+              "pm.test('userId coincide com criador', () => { if (perfil && perfil.userId && pm.collectionVariables.get('criadorUserId')) { pm.expect(String(perfil.userId)).to.eql(String(pm.collectionVariables.get('criadorUserId'))); } });",
+              "pm.test('academiaId igual à do criador (se disponível)', () => { const acad = pm.collectionVariables.get('criadorAcademiaId'); if (perfil && perfil.academiaId && acad) { pm.expect(String(perfil.academiaId)).to.eql(String(acad)); } });",
+              "pm.test('modalidadeId variável definida (se aplicável)', () => { const mid = pm.collectionVariables.get('modalidadeId'); if (mid) { pm.expect(mid).to.be.ok; } });",
+              "pm.test('faixaId variável definida (se aplicável)', () => { const fid = pm.collectionVariables.get('faixaId'); if (fid) { pm.expect(fid).to.be.ok; } });",
+              "pm.test('nascimento variável definida', () => { const nasc = pm.collectionVariables.get('perfilNascimento'); pm.expect(nasc).to.be.ok; });",
+              "if (perfil && perfil._id) pm.collectionVariables.set('profileProfessorId', perfil._id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Criar Perfil Aluno (Gestor)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/criar" },
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"aluno\",\n  \"telefone\": \"{{criadorTelefone}}\",\n  \"nascimento\": \"{{perfilNascimento}}\",\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"faixaId\": \"{{faixaId}}\",\n  \"pretaDataReferencia\": \"{{pretaDataReferencia}}\",\n  \"aulasNoNivelAtual\": 0\n}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "// Sem auto-definições: preencha manualmente os campos no body.",
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "if (!authHeader) { console.warn('Token ausente: defina Authorization: Bearer {{token}}'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}",
+              "pm.test('Tipo = aluno', () => { pm.expect(perfil && perfil.tipo).to.eql('aluno'); });",
+              "pm.test('academiaId presente', () => { pm.expect(perfil && perfil.academiaId).to.be.ok; });",
+              "pm.test('userId coincide com criador', () => { if (perfil && perfil.userId && pm.collectionVariables.get('criadorUserId')) { pm.expect(String(perfil.userId)).to.eql(String(pm.collectionVariables.get('criadorUserId'))); } });",
+              "pm.test('academiaId igual à do criador (se disponível)', () => { const acad = pm.collectionVariables.get('criadorAcademiaId'); if (perfil && perfil.academiaId && acad) { pm.expect(String(perfil.academiaId)).to.eql(String(acad)); } });",
+              "pm.test('modalidadeId variável definida (se aplicável)', () => { const mid = pm.collectionVariables.get('modalidadeId'); if (mid) { pm.expect(mid).to.be.ok; } });",
+              "pm.test('faixaId variável definida (se aplicável)', () => { const fid = pm.collectionVariables.get('faixaId'); if (fid) { pm.expect(fid).to.be.ok; } });",
+              "pm.test('nascimento variável definida', () => { const nasc = pm.collectionVariables.get('perfilNascimento'); pm.expect(nasc).to.be.ok; });",
+              "if (perfil && perfil._id) pm.collectionVariables.set('profileAlunoGestorId', perfil._id);"
+            ] } }
+          ]
+        },
+        {
+          "name": "Criar Perfil Aluno (Professor)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{tokenProfessor}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/criar" },
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"aluno\",\n  \"telefone\": \"{{criadorTelefone}}\",\n  \"nascimento\": \"{{perfilNascimento}}\",\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"faixaId\": \"{{faixaId}}\",\n  \"pretaDataReferencia\": \"{{pretaDataReferencia}}\",\n  \"aulasNoNivelAtual\": 0\n}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "// Sem auto-definições: preencha manualmente os campos no body.",
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "if (!authHeader) { console.warn('Token ausente: defina Authorization: Bearer {{tokenProfessor}}'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}",
+              "pm.test('Tipo = aluno', () => { pm.expect(perfil && perfil.tipo).to.eql('aluno'); });",
+              "pm.test('academiaId presente', () => { pm.expect(perfil && perfil.academiaId).to.be.ok; });",
+              "pm.test('userId coincide com criador', () => { if (perfil && perfil.userId && pm.collectionVariables.get('criadorUserId')) { pm.expect(String(perfil.userId)).to.eql(String(pm.collectionVariables.get('criadorUserId'))); } });",
+              "pm.test('academiaId igual à do criador (se disponível)', () => { const acad = pm.collectionVariables.get('criadorAcademiaId'); if (perfil && perfil.academiaId && acad) { pm.expect(String(perfil.academiaId)).to.eql(String(acad)); } });",
+              "pm.test('modalidadeId variável definida (se aplicável)', () => { const mid = pm.collectionVariables.get('modalidadeId'); if (mid) { pm.expect(mid).to.be.ok; } });",
+              "pm.test('faixaId variável definida (se aplicável)', () => { const fid = pm.collectionVariables.get('faixaId'); if (fid) { pm.expect(fid).to.be.ok; } });",
+              "pm.test('nascimento variável definida', () => { const nasc = pm.collectionVariables.get('perfilNascimento'); pm.expect(nasc).to.be.ok; });",
+              "if (perfil && perfil._id) pm.collectionVariables.set('profileAlunoProfessorId', perfil._id);"
+            ] } }
+          ]
+        },
+        { "name": "Listar Perfis do Usuário", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/user" } } },
+        {
+          "name": "Treinos faltantes para próximo nível (por usuário)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/perfis/user/{{userIdOrMe}}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "// Se não houver userId, usar 'me' para o usuário do token.",
+              "if (!pm.collectionVariables.get('userIdOrMe')) { pm.collectionVariables.set('userIdOrMe', 'me'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "let perfis = []; try { perfis = pm.response.json(); } catch(e) { perfis = []; }",
+              "const aluno = perfis.find(p => p.tipo === 'aluno');",
+              "pm.test('Perfil de aluno encontrado', () => { pm.expect(!!aluno).to.be.true; });",
+              "if (aluno) {",
+              "  const trpn = aluno.tempoRestanteProximoNivel;",
+              "  const total = trpn && typeof trpn.total === 'number' ? trpn.total : null;",
+              "  const faltam = trpn && typeof trpn.valor === 'number' ? trpn.valor : null;",
+              "  const feitos = (total !== null && faltam !== null) ? Math.max(total - faltam, 0) : null;",
+              "  const pctFeito = (total && typeof total === 'number' && feitos !== null && total > 0) ? Math.round((feitos / total) * 100) : null;",
+              "  const pctFalta = (total && typeof total === 'number' && faltam !== null && total > 0) ? Math.round((faltam / total) * 100) : null;",
+              "  console.warn('Próximo nível:', trpn && trpn.proximoNivel);",
+              "  console.warn('Status próximo nível:', trpn && trpn.status);",
+              "  console.warn('Total de aulas no nível:', total);",
+              "  console.warn('Já fez aulas no nível atual:', feitos);",
+              "  console.warn('Faltam aulas para próximo nível:', faltam);",
+              "  console.warn('Progresso (% feito):', pctFeito, ' | (% faltante):', pctFalta);",
+              "  if (faltam !== null) pm.collectionVariables.set('faltamTreinosProximoNivel', String(faltam));",
+              "  if (feitos !== null) pm.collectionVariables.set('treinosFeitosNivelAtual', String(feitos));",
+              "  if (pctFeito !== null) pm.collectionVariables.set('progressoNivelAtualPercent', String(pctFeito));",
+              "  if (pctFalta !== null) pm.collectionVariables.set('faltaPercentNivelAtual', String(pctFalta));",
+              "  if (trpn && trpn.status) pm.collectionVariables.set('statusProximoNivel', String(trpn.status));",
+              "  pm.test('Tempo restante próximo nível presente', () => { pm.expect(trpn).to.be.ok; });",
+              "  if (total !== null) { pm.test('Total de aulas do nível é numérico', () => { pm.expect(typeof total).to.eql('number'); }); }",
+              "} else {",
+              "  console.warn('Nenhum perfil de aluno encontrado para o usuário.');",
+              "}"
+            ] } }
+          ]
+        },
+        { "name": "Atualizar Perfil", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/{{profileId}}" }, "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Filho Atualizado\",\n  \"aulasNoNivelAtual\": {{aulasNoNivelAtual}}\n}" } }, "event": [ { "listen": "prerequest", "script": { "exec": [ "if (!pm.collectionVariables.get('aulasNoNivelAtual')) { pm.collectionVariables.set('aulasNoNivelAtual', 12); console.warn('Defina {{aulasNoNivelAtual}} para simular progresso. Usando 12.'); }" ] } }, { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "let perfil = null; try { const json = pm.response.json(); perfil = json.perfil || json; } catch(e) {}", "pm.test('tempoRestanteProximoGrau presente', () => { pm.expect(perfil && perfil.tempoRestanteProximoGrau).to.be.ok; });", "pm.test('tempoRestanteProximoNivel presente', () => { pm.expect(perfil && perfil.tempoRestanteProximoNivel).to.be.ok; });" ] } } ] },
+        { "name": "Deletar Perfil", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/{{profileId}}" } } },
+        { "name": "Listar Histórico do Perfil", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/{{profileId}}/historico" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "let hist = []; try { const json = pm.response.json(); hist = json.historico || []; } catch(e) { hist = []; }", "console.warn('Histórico (itens):', hist.length);", "pm.test('Histórico retornado', () => { pm.expect(Array.isArray(hist)).to.be.true; });" ] } } ] },
+        { "name": "Adicionar Histórico ao Perfil", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/perfis/{{profileId}}/historico" }, "body": { "mode": "raw", "raw": "{\n  \"eventos\": [\n    { \"tipo\": \"inicio_treino\", \"data\": \"2020-01-10\", \"origem\": \"manual\" },\n    { \"tipo\": \"inicio_faixa\", \"data\": \"2020-01-10\", \"faixaId\": \"{{faixaBrancaId}}\", \"origem\": \"manual\" },\n    { \"tipo\": \"grau\", \"data\": \"2021-03-01\", \"grauNumero\": 1, \"observacao\": \"Registro anterior ao app\" },\n    { \"tipo\": \"graduacao\", \"data\": \"2022-09-15\", \"faixaId\": \"{{faixaAzulId}}\" }\n  ]\n}" } }, "event": [ { "listen": "test", "script": { "exec": [ "pm.test('Status 200', () => pm.response.to.have.status(200));", "let hist = []; try { const json = pm.response.json(); hist = json.historico || []; } catch(e) { hist = []; }", "console.warn('Histórico depois do insert (itens):', hist.length);", "pm.test('Histórico foi atualizado', () => { pm.expect(hist.length).to.be.greaterThan(0); });" ] } } ] }
+      ]
+    },
+    {
+      "name": "Dependentes",
+      "item": [
+        {
+          "name": "Criar Dependente",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/dependentes" },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"{{dependenteNome}}\",\n  \"nascimento\": \"{{dependenteNascimento}}\",\n  \"contatoResponsavel\": {\n    \"nome\": \"{{responsavelNome}}\",\n    \"telefone\": \"{{responsavelTelefone}}\"\n  }\n}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "pm.sendRequest({ url: pm.variables.replaceIn('{{baseUrl}}/perfis/user'), method: 'GET', header: { Authorization: authHeader } }, function (err, res) {",
+              "  try {",
+              "    const perfis = res.json();",
+              "    const order = ['gestor','professor','aluno'];",
+              "    let responsavel = null;",
+              "    for (const t of order) { const p = perfis.find(pp => pp.tipo === t); if (p) { responsavel = p; break; } }",
+              "    if (responsavel) {",
+              "      pm.collectionVariables.set('responsavelPerfilId', String(responsavel._id));",
+              "      pm.collectionVariables.set('responsavelNome', responsavel.nome || '');",
+              "      pm.collectionVariables.set('responsavelTelefone', responsavel.telefone || '');",
+              "      if (responsavel.userId) pm.collectionVariables.set('responsavelUserId', String(responsavel.userId));",
+              "      if (responsavel.academiaId) pm.collectionVariables.set('responsavelAcademiaId', String(responsavel.academiaId));",
+              "    }",
+              "  } catch(e) { /* ignore */ }",
+              "});",
+              "if (!pm.collectionVariables.get('dependenteNome')) { pm.collectionVariables.set('dependenteNome', 'Dependente'); console.warn('Defina {{dependenteNome}}. Usando default: Dependente'); }",
+              "if (!pm.collectionVariables.get('dependenteNascimento')) { pm.collectionVariables.set('dependenteNascimento', '2015-01-01'); console.warn('Defina {{dependenteNascimento}} (YYYY-MM-DD). Usando default 2015-01-01.'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "let dep = null; try { const json = pm.response.json(); dep = json.data || json.dependente || json; } catch(e) {}",
+              "if (dep && dep._id) pm.collectionVariables.set('dependenteId', dep._id);",
+              "pm.test('responsavelId associado corretamente', () => { const rid = pm.collectionVariables.get('responsavelPerfilId'); if (dep && dep.responsavelId && rid) { pm.expect(String(dep.responsavelId)).to.eql(String(rid)); } });",
+              "pm.test('variáveis de dependente definidas', () => { pm.expect(pm.collectionVariables.get('dependenteNome')).to.be.ok; pm.expect(pm.collectionVariables.get('dependenteNascimento')).to.be.ok; });"
+            ] } }
+          ]
+        },
+        {
+          "name": "Criar Dependente (Aluno responsável)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{tokenAluno}}" } ],
+            "url": { "raw": "{{baseUrl}}/dependentes" },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"{{dependenteNome}}\",\n  \"nascimento\": \"{{dependenteNascimento}}\",\n  \"contatoResponsavel\": {\n    \"nome\": \"{{responsavelNome}}\",\n    \"telefone\": \"{{responsavelTelefone}}\"\n  }\n}" }
+          },
+          "event": [
+            { "listen": "prerequest", "script": { "exec": [
+              "const authHeader = pm.request.headers.get('Authorization');",
+              "pm.sendRequest({ url: pm.variables.replaceIn('{{baseUrl}}/perfis/user'), method: 'GET', header: { Authorization: authHeader } }, function (err, res) {",
+              "  try {",
+              "    const perfis = res.json();",
+              "    const order = ['aluno','professor','gestor'];",
+              "    let responsavel = null;",
+              "    for (const t of order) { const p = perfis.find(pp => pp.tipo === t); if (p) { responsavel = p; break; } }",
+              "    if (responsavel) {",
+              "      pm.collectionVariables.set('responsavelPerfilId', String(responsavel._id));",
+              "      pm.collectionVariables.set('responsavelNome', responsavel.nome || '');",
+              "      pm.collectionVariables.set('responsavelTelefone', responsavel.telefone || '');",
+              "      if (responsavel.userId) pm.collectionVariables.set('responsavelUserId', String(responsavel.userId));",
+              "      if (responsavel.academiaId) pm.collectionVariables.set('responsavelAcademiaId', String(responsavel.academiaId));",
+              "    }",
+              "  } catch(e) { /* ignore */ }",
+              "});",
+              "if (!pm.collectionVariables.get('dependenteNome')) { pm.collectionVariables.set('dependenteNome', 'Dependente'); console.warn('Defina {{dependenteNome}}. Usando default: Dependente'); }",
+              "if (!pm.collectionVariables.get('dependenteNascimento')) { pm.collectionVariables.set('dependenteNascimento', '2015-01-01'); console.warn('Defina {{dependenteNascimento}} (YYYY-MM-DD). Usando default 2015-01-01.'); }"
+            ] } },
+            { "listen": "test", "script": { "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "let dep = null; try { const json = pm.response.json(); dep = json.data || json.dependente || json; } catch(e) {}",
+              "if (dep && dep._id) pm.collectionVariables.set('dependenteAlunoId', dep._id);",
+              "pm.test('responsavelId associado corretamente', () => { const rid = pm.collectionVariables.get('responsavelPerfilId'); if (dep && dep.responsavelId && rid) { pm.expect(String(dep.responsavelId)).to.eql(String(rid)); } });",
+              "pm.test('variáveis de dependente definidas', () => { pm.expect(pm.collectionVariables.get('dependenteNome')).to.be.ok; pm.expect(pm.collectionVariables.get('dependenteNascimento')).to.be.ok; });"
+            ] } }
+          ]
+        },
+        { "name": "Listar Meus Dependentes", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/dependentes" } }, "event": [ { "listen": "test", "script": { "exec": [
+          "pm.test('Status 200', () => pm.response.to.have.status(200));",
+          "let lista = []; try { const json = pm.response.json(); lista = Array.isArray(json) ? json : (Array.isArray(json.data) ? json.data : []); } catch(e) {}",
+          "if (lista.length > 0) {",
+          "  pm.test('tempoRestante presente nos itens', () => {",
+          "    lista.forEach(d => { pm.expect(d.tempoRestanteProximoGrau).to.be.ok; pm.expect(d.tempoRestanteProximoNivel).to.be.ok; });",
+          "  });",
+          "} else { console.warn('Nenhum dependente listado para validar tempo restante.'); }"
+        ] } } ] },
+        { "name": "Obter Dependente", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/dependentes/{{dependenteId}}" } }, "event": [ { "listen": "test", "script": { "exec": [
+          "pm.test('Status 200', () => pm.response.to.have.status(200));",
+          "let dep = null; try { const json = pm.response.json(); dep = json.data || json.dependente || json; } catch(e) {}",
+          "pm.test('tempoRestanteProximoGrau presente', () => { pm.expect(dep && dep.tempoRestanteProximoGrau).to.be.ok; });",
+          "pm.test('tempoRestanteProximoNivel presente', () => { pm.expect(dep && dep.tempoRestanteProximoNivel).to.be.ok; });"
+        ] } } ] },
+        { "name": "Atualizar Dependente", "request": { "method": "PUT", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/dependentes/{{dependenteId}}" }, "body": { "mode": "raw", "raw": "{\n  \"modalidadeId\": \"{{modalidadeId}}\",\n  \"faixaId\": \"{{faixaId}}\"\n}" } }, "event": [ { "listen": "prerequest", "script": { "exec": [
+          "const authHeader = pm.request.headers.get('Authorization');",
+          "if (!pm.collectionVariables.get('modalidadeId')) {",
+          "  pm.sendRequest({ url: pm.variables.replaceIn('{{baseUrl}}/modalidades/minhas'), method: 'GET', header: { Authorization: authHeader } }, function (e2, r2) {",
+          "    try { const mods = r2.json(); if (Array.isArray(mods) && mods.length > 0) { pm.collectionVariables.set('modalidadeId', String(mods[0]._id)); } else { console.error('Nenhuma modalidade ativa encontrada.'); } } catch(e) {}",
+          "    const mid = pm.collectionVariables.get('modalidadeId');",
+          "    if (mid && !pm.collectionVariables.get('faixaId')) {",
+          "      pm.sendRequest({ url: pm.variables.replaceIn(`{{baseUrl}}/niveis/${mid}`), method: 'GET', header: { Authorization: authHeader } }, function (e3, r3) {",
+          "        try { const niveis = r3.json(); if (Array.isArray(niveis) && niveis.length > 0) { pm.collectionVariables.set('faixaId', String(niveis[0]._id)); } else { console.warn('Nenhum nível encontrado para a modalidade.'); } } catch(e) {}",
+          "      });",
+          "    }",
+          "  });",
+          "}"
+        ] } }, { "listen": "test", "script": { "exec": [
+          "pm.test('Status 200', () => pm.response.to.have.status(200));"
+        ] } } ] },
+        { "name": "Excluir Dependente", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/dependentes/{{dependenteId}}" } } }
+      ]
+    },
+    {
+      "name": "Turmas",
+      "item": [
+        {
+          "name": "Criar Turma",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/turmas" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Turma Kids\",\n  \"modalidade\": \"{{modalidadeId}}\",\n  \"professor\": \"{{professorId}}\",\n  \"diasDaSemana\": [\"segunda\", \"quarta\"],\n  \"horario\": \"18:30\",\n  \"academia\": \"{{academiaId}}\"\n}"
+            }
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": ["pm.test('Status 201', () => pm.response.to.have.status(201));", "try { const json = pm.response.json(); if (json && json._id) pm.collectionVariables.set('turmaId', json._id); if (json && json.codigoConvite) pm.collectionVariables.set('codigoConvite', json.codigoConvite); } catch(e) {}"] } }
+          ]
+        },
+        { "name": "Entrar via Link (Aluno)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/turmas/entrar" }, "body": { "mode": "raw", "raw": "{\n  \"linkConvite\": \"{{baseUrl}}/frontend/entrar-turma/{{codigoConvite}}\"\n}" } } },
+        { "name": "Entrar via Código (Aluno)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/turmas/entrar" }, "body": { "mode": "raw", "raw": "{\n  \"codigoConvite\": \"{{codigoConvite}}\"\n}" } } }
+      ]
+    },
+    {
+      "name": "Aulas",
+      "item": [
+        {
+          "name": "Gerar Semana por Turma",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/aulas/turmas/{{turmaId}}/gerar-semana?timezone={{timezone}}" }
+          }
+        },
+        {
+          "name": "Listar Semana por Turma",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/aulas/turmas/{{turmaId}}/semana" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "try { const json = pm.response.json(); const first = Array.isArray(json) ? json[0] : (json.aulas && json.aulas[0]); if (first && first._id) pm.collectionVariables.set('aulaId', first._id); } catch(e) {}"
+                ]
+              }
+            }
+          ]
+        },
+        { "name": "Minhas Aulas da Semana", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/minhas/semana" } } },
+        { "name": "Editar/Cancelar Aula", "request": { "method": "PATCH", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/{{aulaId}}" }, "body": { "mode": "raw", "raw": "{\n  \"status\": \"cancelada\",\n  \"observacoes\": \"Feriado\"\n}" } } },
+        { "name": "Confirmar Presença", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/{{aulaId}}/confirmar" } } },
+        { "name": "Remover Confirmação", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/{{aulaId}}/confirmar" } } },
+        { "name": "Gerar Semana por Academia", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/aulas/academias/{{academiaId}}/gerar-semana" } } }
+      ]
+    }
+  ]
+}

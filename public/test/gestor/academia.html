@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-br"><head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Academia</title>
+  <link rel="stylesheet" href="/test/gestor/assets/styles.css">
+</head><body>
+  <button id="theme-toggle" class="theme-toggle btn secondary">Tema</button>
+  <div class="wrap">
+    <div class="progress">
+      <div class="step"><div class="dot"></div><span class="muted">Cadastro</span></div>
+      <div class="step"><div class="dot"></div><span class="muted">Login</span></div>
+      <div class="step"><div class="dot active"></div><span class="muted">Academia</span></div>
+      <div class="step"><div class="dot"></div><span class="muted">Modalidades</span></div>
+      <div class="step"><div class="dot"></div><span class="muted">Planos</span></div>
+      <div class="step"><div class="dot"></div><span class="muted">Professor</span></div>
+      <div class="step"><div class="dot"></div><span class="muted">Checkout</span></div>
+    </div>
+    <div class="card">
+      <h2 class="title">Dados da Academia</h2>
+      <div class="row">
+        <div>
+          <label>Nome<input id="nome"></label>
+          <label>Telefone<input id="tel"></label>
+          <label>Email<input id="email"></label>
+        </div>
+        <div>
+          <label>Rua<input id="rua"></label>
+          <label>Número<input id="num"></label>
+          <label>Cidade<input id="cid"></label>
+          <label>Estado
+            <select id="uf">
+              <option value="">Selecione</option>
+              <option value="AC">AC</option>
+              <option value="AL">AL</option>
+              <option value="AP">AP</option>
+              <option value="AM">AM</option>
+              <option value="BA">BA</option>
+              <option value="CE">CE</option>
+              <option value="DF">DF</option>
+              <option value="ES">ES</option>
+              <option value="GO">GO</option>
+              <option value="MA">MA</option>
+              <option value="MT">MT</option>
+              <option value="MS">MS</option>
+              <option value="MG">MG</option>
+              <option value="PA">PA</option>
+              <option value="PB">PB</option>
+              <option value="PR">PR</option>
+              <option value="PE">PE</option>
+              <option value="PI">PI</option>
+              <option value="RJ">RJ</option>
+              <option value="RN">RN</option>
+              <option value="RS">RS</option>
+              <option value="RO">RO</option>
+              <option value="RR">RR</option>
+              <option value="SC">SC</option>
+              <option value="SP">SP</option>
+              <option value="SE">SE</option>
+              <option value="TO">TO</option>
+            </select>
+          </label>
+          <label>CEP<input id="cep"></label>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" onclick="location.href='/test/gestor/cadastro'">Voltar</button>
+        <div>
+          <button id="obter" class="btn secondary">Obter minha academia</button>
+          <button id="submit" class="btn">Salvar</button>
+        </div>
+      </div>
+      <div id="status" class="status muted"></div>
+    </div>
+    <div class="card">
+      <div id="res" class="muted"></div>
+      <div class="nav"><button class="btn" onclick="location.href='/test/gestor/modalidades'">Prosseguir</button></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" style="display:none"></div>
+  <script type="module">
+    import { request, toast, setStatus, set, KEYS, applyTheme, toggleTheme, ensureTokenOrRedirect, resumeOnPageLoad } from '/test/gestor/assets/api.js'
+    applyTheme();
+    document.getElementById('theme-toggle').onclick = toggleTheme;
+    ensureTokenOrRedirect();
+    resumeOnPageLoad('/test/gestor/academia');
+    document.getElementById('obter').onclick = async () => {
+      const r = await request('GET','/api/gestor/academia');
+      setStatus(r.res.ok,'Obter: '+r.res.status);
+      document.getElementById('res').textContent = JSON.stringify(r.data);
+      const id = r?.data?._id || '';
+      if (id) { set(KEYS.acad,id); toast('Academia vinculada') }
+    }
+    document.getElementById('submit').onclick = async () => {
+      const body = {
+        nome: document.getElementById('nome').value.trim(),
+        telefone: document.getElementById('tel').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        endereco: {
+          rua: document.getElementById('rua').value.trim(),
+          numero: document.getElementById('num').value.trim(),
+          cidade: document.getElementById('cid').value.trim(),
+          estado: document.getElementById('uf').value.trim(),
+          cep: document.getElementById('cep').value.trim(),
+        }
+      }
+      const r = await request('POST','/api/gestor/academia',body);
+      setStatus(r.res.ok,'Salvar: '+r.res.status);
+      document.getElementById('res').textContent = JSON.stringify(r.data);
+      const id = r?.data?.academia?._id || '';
+      if (id) { set(KEYS.acad,id); toast('Academia criada') }
+    }
+  </script>
+</body></html>
